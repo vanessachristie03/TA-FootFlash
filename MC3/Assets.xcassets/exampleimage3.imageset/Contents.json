@@ -1,0 +1,21 @@
+{
+  "images" : [
+    {
+      "filename" : "603e0c897db8041239e03bb1_5d8cadeef2cb2018107d8298_Badminton%25252525252520footwork.jpeg",
+      "idiom" : "universal",
+      "scale" : "1x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "3x"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

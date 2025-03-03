@@ -1,8 +1,6 @@
 import SwiftUI
 import WatchConnectivity
 
-import SwiftUI
-import WatchConnectivity
 
 class WatchSessionManager: NSObject, WCSessionDelegate, ObservableObject {
     static let shared = WatchSessionManager()

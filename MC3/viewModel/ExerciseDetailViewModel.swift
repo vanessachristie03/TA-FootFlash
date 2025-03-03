@@ -8,6 +8,7 @@
 import Foundation
 import SwiftUI
 import AVKit
+import FirebaseFirestore
 
 class ExerciseDetailViewModel: ObservableObject {
     @Published var exercise: Exercise = Exercise()
@@ -18,6 +19,31 @@ class ExerciseDetailViewModel: ObservableObject {
     }
     
     init() {}
+    func saveToFirestore() {
+        let db = Firestore.firestore()
+        let userID = getOrCreateUserID()
+
+        let exerciseData: [String: Any] = [
+            "id": exercise.id.uuidString,
+            "userID": userID,
+            "date": Timestamp(date: exercise.date),
+            "duration": exercise.duration,
+            "accuracy": exercise.accuracy,
+            "mistakes": exercise.mistakes,
+            "fullRecord": exercise.fullRecord,
+            "caloriesBurned": exercise.caloriesBurned
+        ]
+        
+        db.collection("exercise").document(exercise.id.uuidString).setData(exerciseData) { error in
+            if let error = error {
+                print("Error saving to Firestore: \(error.localizedDescription)")
+            } else {
+                print("Exercise successfully saved to Firestore")
+            }
+        }
+    }
+    
+
     
     func generateThumbnail(from url: URL) -> UIImage? {
         let asset = AVAsset(url: url)
@@ -71,38 +97,14 @@ class ExerciseDetailViewModel: ObservableObject {
         dateFormatter.dateFormat = "MMMM dd, yyyy" // For "June 30, 2024" format
         return dateFormatter.string(from: date)
     }
+    private func getOrCreateUserID() -> String {
+        if let storedUserID = UserDefaults.standard.string(forKey: "userID") {
+            return storedUserID
+        } else {
+            let newUserID = UUID().uuidString
+            UserDefaults.standard.set(newUserID, forKey: "userID")
+            return newUserID
+        }
+    }
 
-
-    
-    //    private func playVideo(from url: URL) {
-    //        let player = AVPlayer(url: url)
-    //        let playerViewController = AVPlayerViewController()
-    //        playerViewController.player = player
-    //        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-    //           let rootViewController = windowScene.windows.first?.rootViewController {
-    //            rootViewController.present(playerViewController, animated: true) {
-    //                player.play()
-    //            }
-    //        }
-    //    }
-
-    //    func createLocalUrl(for filename: String, ofType type: String) -> URL? {
-    //        let fileManager = FileManager.default
-    //        let cacheDirectory = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-    //        let url = cacheDirectory.appendingPathComponent("\(filename).\(type)")
-    //
-    //        guard fileManager.fileExists(atPath: url.path) else {
-    //            guard let video = NSDataAsset(name: filename) else { return nil }
-    //            do {
-    //                try video.data.write(to: url)
-    //                print("Video written to URL: \(url)")
-    //                return url
-    //            } catch {
-    //                print("Error writing video data:", error.localizedDescription)
-    //                return nil
-    //            }
-    //        }
-    //
-    //        return url
-    //    }
 }

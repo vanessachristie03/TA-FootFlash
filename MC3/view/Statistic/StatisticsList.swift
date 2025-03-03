@@ -1,14 +1,12 @@
 import SwiftUI
-import SwiftData
+import FirebaseFirestore
 
 struct StatisticsList: View {
-    @Environment(\.modelContext) var modelContext
     @Environment(\.colorScheme) var colorScheme
-    @Query(sort: \Exercise.date, order: .reverse) private var exercises: [Exercise]
     @State private var currentIndex: Int = 0
     @State private var trainNow: Bool = false
+    @StateObject private var viewModel = StatisticsViewModel() 
     
-
     
     func setWorkoutTitle(date: Date) -> String {
         let day = formatDate(date: date, format: "EEEE")
@@ -30,10 +28,10 @@ struct StatisticsList: View {
     }
     
     var body: some View {
-        if exercises.count > 0 {
+        if viewModel.exercises.count > 0 {
             ScrollView(.vertical, showsIndicators: true) {
                 VStack(spacing: 20) {
-                    ForEach(Array(exercises.enumerated()), id: \.element) { index, exercise in
+                    ForEach(Array(viewModel.exercises.enumerated()), id: \.element.id) { index, exercise in
                         NavigationLink(destination: ExerciseDetailView(exercise: exercise))  {
                             VStack(alignment: .leading) {
                                 Text(formatDate(date: exercise.date))
@@ -70,7 +68,6 @@ struct StatisticsList: View {
                             .padding()
                             .background(colorScheme == .dark ? Color("Text").opacity(0.1) : Color.white)
                             .cornerRadius(12)
-//                            .shadow(radius: 5)
                             .offset(x: index <= currentIndex ? 0 : 400)
                             .opacity(index <= currentIndex ? 1 : 0)
                             .animation(.easeOut.delay(Double(index) * 0.1), value: index <= currentIndex)
@@ -80,8 +77,8 @@ struct StatisticsList: View {
                 }
                 .padding()
                 .onAppear {
-                    print("Exercise count: \(exercises.count)")
-                    for index in 0..<exercises.count {
+                    print("Exercise count: \(viewModel.exercises.count)")
+                    for index in 0..<viewModel.exercises.count {
                         DispatchQueue.main.asyncAfter(deadline: .now() + Double(index) * 0.1) {
                             withAnimation {
                                 currentIndex += 1
@@ -92,8 +89,9 @@ struct StatisticsList: View {
             }
             .background(Color("Primary"))
             .navigationBarTitle("Statistic List", displayMode: .inline)
-            .onAppear{
+            .onAppear {
                 trainNow = false
+                viewModel.fetchExercisesFromFirestore() // Fetch data dari Firestore saat tampilan muncul
             }
         }
         else {
@@ -125,8 +123,9 @@ struct StatisticsList: View {
             }
             .background(Color("Primary"))
             .navigationBarTitle("Statistic List", displayMode: .inline)
-            .onAppear{
+            .onAppear {
                 trainNow = false
+                viewModel.fetchExercisesFromFirestore() // Fetch data Firestore
             }
         }
     }

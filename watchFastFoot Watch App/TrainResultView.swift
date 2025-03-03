@@ -35,6 +35,12 @@ struct TrainResultView: View {
                     .cornerRadius(10)
                     .padding()
                 
+                             // **Tampilkan Kalori yang Terbakar**
+                             Text("CAL: \(watchToIOSConnector.burnedCalories, specifier: "%.2f") kcal")
+                                 .font(.headline)
+                                 .foregroundColor(.white)
+                                 .padding()
+                
                 Circle()
                     .fill(Color.white)
                     .frame(width: 60, height: 60)
@@ -47,6 +53,7 @@ struct TrainResultView: View {
                     )
                     .onTapGesture {
                         watchToIOSConnector.sendMessage(["command": "stopRecording"])
+//                        watchToIOSConnector.stopWorkout()
                         isNavigatingBack = false
                     }
             }

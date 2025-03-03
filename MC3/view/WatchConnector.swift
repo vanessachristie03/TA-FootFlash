@@ -8,18 +8,48 @@
 import Foundation
 import WatchConnectivity
 
-class WatchConnector: NSObject, WCSessionDelegate {
-    
+class WatchConnector: NSObject, ObservableObject, WCSessionDelegate {
     var session: WCSession
+    static let shared = WatchConnector()
+    @Published var burnedCalories: Double = 0.0
     
     init(session: WCSession = .default) {
         self.session = session
         super.init()
-        session.delegate = self
-        session.activate()
+        if WCSession.isSupported() {
+            let session = WCSession.default
+            session.delegate = self
+            session.activate()
+            print("✅ WCSession iOS: Activated")
+        }
+        
+        print("📡 WCSession isReachable: \(session.isReachable)")
+        print("📡 WCSession activation state: \(session.activationState.rawValue)")
     }
+
+    func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
+        
+        DispatchQueue.main.async {
+            print("yey masuk")
+            if let calories = message["burnedCalories"] as? Double {
+                
+                self.burnedCalories = calories
+                print("✅ Received burned calories from Watch: \(calories)")
+            }
+            
+            else {
+                print("kok ga masuk kalori")
+            }
+        }
+    }
+
+    
     
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
+        print("📡 WCSession activation complete: \(activationState.rawValue)")
+        if let error = error {
+            print("❌ Activation error: \(error.localizedDescription)")
+        }
     }
     
     func sessionDidBecomeInactive(_ session: WCSession) {
@@ -29,6 +59,9 @@ class WatchConnector: NSObject, WCSessionDelegate {
     }
     
     func sendPredictionToWatch(predicted: String) {
+        print("📡 Checking session before sending...")
+         print("📡 WCSession isReachable: \(session.isReachable)")
+         print("📡 WCSession activation state: \(session.activationState.rawValue)")
         if session.isReachable {
             let message = ["predicted": predicted]
             session.sendMessage(message, replyHandler: nil, errorHandler: { error in
@@ -36,4 +69,7 @@ class WatchConnector: NSObject, WCSessionDelegate {
             })
         }
     }
+    
+    
+
 }

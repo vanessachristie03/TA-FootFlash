@@ -16,15 +16,19 @@ class Exercise: Identifiable {
     var accuracy: Double = 0
     var mistakes: [String] = []
     var fullRecord: String = ""
-    
-    init() {}
-    
-    init(id: UUID, date: Date, duration: Double, accuracy: Double, mistakes: [String], fullRecord: String) {
-        self.id = id
-        self.date = date
-        self.duration = duration
-        self.accuracy = accuracy
-        self.mistakes = mistakes
-        self.fullRecord = fullRecord
-    }
+    var caloriesBurned: Double = 0 
+
+      
+       init() {}
+
+
+       init(id: UUID, date: Date, duration: Double, accuracy: Double, mistakes: [String], fullRecord: String, caloriesBurned: Double) {
+           self.id = id
+           self.date = date
+           self.duration = duration
+           self.accuracy = accuracy
+           self.mistakes = mistakes
+           self.fullRecord = fullRecord
+           self.caloriesBurned = caloriesBurned
+       }
 }

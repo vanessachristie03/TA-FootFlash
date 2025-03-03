@@ -7,10 +7,51 @@
 
 
 import SwiftUI
+import Foundation
+import FirebaseFirestore
 
 class StatisticsViewModel: ObservableObject {
     @Published var statistics: [Statistic] = []
     @Published var exercises: [Exercise] = []
+    
+    func fetchExercisesFromFirestore() {
+           let db = Firestore.firestore()
+           let userID = getOrCreateUserID()
+           
+           db.collection("exercise")
+               .whereField("userID", isEqualTo: userID)
+               .getDocuments { snapshot, error in
+                   if let error = error {
+                       print("🔥 Error fetching exercises: \(error.localizedDescription)")
+                       return
+                   }
+                   
+                   if let documents = snapshot?.documents {
+                       self.exercises = documents.compactMap { doc in
+                           let data = doc.data()
+                           return Exercise(
+                               id: UUID(uuidString: doc.documentID) ?? UUID(),
+                               date: (data["date"] as? Timestamp)?.dateValue() ?? Date(),
+                               duration: data["duration"] as? Double ?? 0,
+                               accuracy: data["accuracy"] as? Double ?? 0,
+                               mistakes: data["mistakes"] as? [String] ?? [],
+                               fullRecord: data["fullRecord"] as? String ?? "",
+                               caloriesBurned: data["caloriesBurned"] as? Double ?? 0
+                           )
+                       }
+                   }
+               }
+       }
+
+       private func getOrCreateUserID() -> String {
+           if let storedUserID = UserDefaults.standard.string(forKey: "userID") {
+               return storedUserID
+           } else {
+               let newUserID = UUID().uuidString
+               UserDefaults.standard.set(newUserID, forKey: "userID")
+               return newUserID
+           }
+       }
     
     func getAverageAccuracy() -> Int {
         let accuracies = exercises.map { $0.accuracy }

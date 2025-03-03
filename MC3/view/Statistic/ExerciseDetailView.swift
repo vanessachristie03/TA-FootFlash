@@ -1,6 +1,8 @@
 import SwiftUI
 import AVKit
 import SwiftData
+import FirebaseFirestore
+import FirebaseAuth
 
 struct Video: Identifiable, Hashable {
     let id: UUID
@@ -12,10 +14,12 @@ struct Video: Identifiable, Hashable {
 struct ExerciseDetailView: View {
     @Environment(\.modelContext) var modelContext
     @Environment(\.colorScheme) var colorScheme
+    @ObservedObject var watchConnector = WatchConnector.shared
     @Query var exercises: [Exercise]
     @State private var selectedVideo: String? = nil
     @State private var player: AVPlayer? = nil
     @State var saved = false
+    
     var viewModel: ExerciseDetailViewModel = ExerciseDetailViewModel()
     
     init(exercise: Exercise) {
@@ -23,6 +27,7 @@ struct ExerciseDetailView: View {
     }
     
     var body: some View {
+        
         VStack {
             if let selectedVideo = selectedVideo, let videoURL = URL(string: selectedVideo) {
                 VideoPlayer(player: player)
@@ -60,6 +65,11 @@ struct ExerciseDetailView: View {
                                 .foregroundColor(.gray)
                         }
                         .padding(.trailing, 32)
+                        VStack(alignment: .leading) {
+                                    Text("Calories burned: \(watchConnector.burnedCalories, specifier: "%.2f")")
+                                        .font(.headline)
+                                        .padding()
+                                }
                         
                         VStack(alignment: .leading) {
                             Text("\(Int(viewModel.exercise.accuracy * 100))%")
@@ -70,11 +80,13 @@ struct ExerciseDetailView: View {
                                 .foregroundColor(.gray)
                                 .multilineTextAlignment(.leading)
                         }
+                      
                     }
                 }
                 .padding(.top, 22)
                 .padding(.horizontal, 16)
                 Spacer()
+                
             }
             
             if !viewModel.exercise.mistakes.isEmpty {
@@ -160,20 +172,27 @@ struct ExerciseDetailView: View {
         
         .background(Color("Secondary"))
         .toolbar {
-            if !exercises.contains(where: {e in e.id == viewModel.exercise.id}) {
-                ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: .topBarTrailing) {
+                if !saved { // Hanya tampil kalau belum disimpan
                     Button {
-                        modelContext.insert(viewModel.exercise)
-                        saved = true
+                        Task {
+                               await viewModel.saveToFirestore()
+                               modelContext.insert(viewModel.exercise) // Simpan ke SwiftData setelah ke Firestore
+                               saved = true
+                           }
                     } label: {
                         Text("Save")
                     }
                     .navigationDestination(isPresented: $saved) {
                         StatisticsList()
                     }
+                    } else {
+                        Text("Saved") // Ganti tombol dengan teks setelah disimpan
+                            .foregroundColor(.gray)
+                    }
                 }
             }
-        }
+        
         .onAppear {
             Task {
                 selectedVideo = viewModel.exercise.fullRecord
@@ -181,6 +200,8 @@ struct ExerciseDetailView: View {
             }
         }
     }
+    
+    
 }
 
 #Preview {

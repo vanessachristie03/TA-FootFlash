@@ -2,23 +2,16 @@ import SwiftUI
 import SwiftData
 import Observation
 
+
 @Model
 class User {
-    var id : UUID = UUID.init()
+    @Attribute(.unique) var userId: UUID
     var firstName: String
     var lastName: String
-    var email: String
-    var weight: String
-    var height: String
-    
-    init(firstName: String, lastName: String, email: String, weight: String, height: String) {
-        self.id = UUID()
+
+    init(userId: UUID = UUID(), firstName: String, lastName: String) {
+        self.userId = UUID() // ID otomatis di-generate
         self.firstName = firstName
         self.lastName = lastName
-        self.email = email
-        self.weight = weight
-        self.height = height
     }
-    
-    
 }

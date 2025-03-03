@@ -7,10 +7,22 @@
 
 import SwiftUI
 import SwiftData
+import FirebaseCore
+import Firebase
+
+
+class AppDelegate: NSObject, UIApplicationDelegate {
+  func application(_ application: UIApplication,
+                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+    FirebaseApp.configure()
+      print("✅ Firebase Initialized")
+    return true
+  }
+}
 
 @main
 struct MC3App: App {
- 
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             User.self,

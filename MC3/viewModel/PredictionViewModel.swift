@@ -13,6 +13,8 @@ class PredictionViewModel: ObservableObject {
         }
     }
     @Published var calibrationMessage: String = ""
+    let caloriesBurned = WatchConnector.shared.burnedCalories
+
     
     var videoCapture: VideoCapture!
     var videoProcessingChain: VideoProcessingChain!
@@ -101,35 +103,59 @@ class PredictionViewModel: ObservableObject {
         manageVideoWriter()
     }
     
-    func stopRecording() async -> Exercise{
+    func stopRecording() async -> Exercise {
         isRecording = false
-        
-        // finish all recording
-        fullVideoWriter?.finishWriting {
-            print("Finalized full video recording at \(String(describing: self.fullVideoWriter?.outputURL.lastPathComponent))")
-        }
-        for writer in videoWriters {
-            writer?.finishWriting {
-                print("Finalized video for \(String(describing: writer?.outputURL.lastPathComponent))")
+
+        // Selesaikan perekaman full video
+        let fullRecordingFinished = await withCheckedContinuation { continuation in
+            fullVideoWriter?.finishWriting {
+                print("Finalized full video recording at \(String(describing: self.fullVideoWriter?.outputURL.lastPathComponent))")
+                continuation.resume()
             }
         }
+
+        // Selesaikan semua video potongan kesalahan
+        for writer in videoWriters {
+            await withCheckedContinuation { continuation in
+                writer?.finishWriting {
+                    print("Finalized video for \(String(describing: writer?.outputURL.lastPathComponent))")
+                    continuation.resume()
+                }
+            }
+        }
+
+        // Pastikan URL video valid
+        guard let fullVideoURL = fullVideoWriter?.outputURL else {
+            print("❌ Full video URL is nil")
+            return Exercise(id: UUID(), date: Date.now, duration: 0, accuracy: 0, mistakes: [], fullRecord: "", caloriesBurned: caloriesBurned)
+        }
+
+        let fullVideo = AVAsset(url: fullVideoURL)
         
-        let fullVideo = AVAsset(url: fullVideoWriter?.outputURL ?? URL(fileReferenceLiteralResourceName: ""))
-        
+        // Ambil durasi setelah memastikan file tersedia
         var duration: Double = 0
         do {
             duration = try await fullVideo.load(.duration).seconds
-        }
-        catch {
-            print("error getting video duration")
+        } catch {
+            print("❌ Error getting video duration: \(error.localizedDescription)")
         }
 
+        // Hitung akurasi
         let accuracy = Double(actionFrameCounts["benar"] ?? 0) / (Double(actionFrameCounts["salah"] ?? 0) + Double(actionFrameCounts["benar"] ?? 1))
-        print(fullVideoWriter?.outputURL.absoluteString)
-        let exercise = Exercise(id: UUID.init(), date: Date.now, duration: duration, accuracy: Double(accuracy), mistakes: videoWriters.map({ $0?.outputURL.relativeString ?? "" }), fullRecord: fullVideoWriter?.outputURL.absoluteString ?? "")
-        
+
+        let exercise = Exercise(
+            id: UUID(),
+            date: Date.now,
+            duration: duration,
+            accuracy: accuracy,
+            mistakes: videoWriters.compactMap { $0?.outputURL.relativeString },
+            fullRecord: fullVideoURL.absoluteString,
+            caloriesBurned: caloriesBurned
+        )
+
         return exercise
     }
+
     
     func getDocumentsDirectory() -> URL {
         let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)

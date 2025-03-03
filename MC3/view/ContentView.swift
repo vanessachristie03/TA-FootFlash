@@ -13,6 +13,9 @@ struct ContentView: View {
     @Environment(\.colorScheme) var colorScheme
     @State var goToStatisticDetail = false
     @Query var exercises: [Exercise]
+    @State private var totalDuration: String = "0"
+    @State private var averageAccuracy: Int = 0
+
     
     var body: some View {
         NavigationStack {
@@ -24,6 +27,13 @@ struct ContentView: View {
                         
                             .padding([.leading], 16.0)
                         Spacer()
+                        NavigationLink(destination: ProfileView()) {
+                                                Image(systemName: "person.circle")
+                                                    .resizable()
+                                                    .frame(width: 30, height: 30)
+                                                    .foregroundColor(Color("Accent"))
+                                            }
+                                            .padding(.trailing, 16.0)
                     }
                     
                     VStack(alignment: .leading) {
@@ -119,14 +129,12 @@ struct ContentView: View {
                                     .fill(Color("Accent"))
                                 }
                                 
-                                // Label sumbu X
                                 ForEach(0..<data.count, id: \.self) { index in
                                     Text(months[index])
                                         .font(.caption)
                                         .position(x: CGFloat(index) * (barWidth * 2) + barWidth / 2 + 40, y: height + 10)
                                 }
                                 
-                                // Label sumbu Y
                                 ForEach(Array(stride(from: minData, through: maxData, by: steps)), id: \.self) { value in
                                     Text("\(Int(value))")
                                         .font(.caption)

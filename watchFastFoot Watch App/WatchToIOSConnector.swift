@@ -32,6 +32,7 @@ class WatchToIOSConnector: NSObject, ObservableObject, WCSessionDelegate, HKWork
             session.delegate = self
             session.activate()
         }
+        
     }
 
     func requestHealthKitAuthorization() {
@@ -121,9 +122,10 @@ class WatchToIOSConnector: NSObject, ObservableObject, WCSessionDelegate, HKWork
                             DispatchQueue.main.async {
                                 self.burnedCalories = caloriesBurnedDuringWorkout
                                 print("🔥 Calories burned during workout: \(caloriesBurnedDuringWorkout) kcal")
+                                self.sendCaloriesToiPhone(burnedCalories: burnedCalories)
                             }
                         }
-                        self.sendCaloriesToiPhone(burnedCalories: burnedCalories)
+           
                         print("🏁 Workout finished: \(workout)")
                     }
                 }
@@ -171,14 +173,27 @@ class WatchToIOSConnector: NSObject, ObservableObject, WCSessionDelegate, HKWork
     }
 
     func sendCaloriesToiPhone(burnedCalories: Double) {
+        print("WCSession activation state: \(WCSession.default.activationState.rawValue)")
+        print("WCSession isReachable: \(WCSession.default.isReachable)")
         
-        if WCSession.default.isReachable {
+        
+        if WCSession.default.activationState == .activated && WCSession.default.isReachable {
             print("Sending calories: \(burnedCalories) to iPhone") // Debug log
             let message = ["burnedCalories": burnedCalories]
             print("Isi dari Message itu : \(message)")
-            WCSession.default.sendMessage(message, replyHandler: nil) { error in
-                print("Error sending calories to iPhone: \(error.localizedDescription)")
-            }
+            
+            
+            WCSession.default.sendMessage(message, replyHandler: { response in
+                print ("Message sent successfully. Response: \(response)")
+            }, errorHandler: { error in
+                print("Error sending: \(error.localizedDescription  )")} )
+            
+//            WCSession.default.sendMessage(message, replyHandler: nil) { response in
+//                print ("Message sent successfully. Response: \(response)")
+//            },
+//                error in
+//                print("Error sending calories to iPhone: \(error.localizedDescription)")
+//            }
         } else {
             print("iPhone is not reachable")
         }

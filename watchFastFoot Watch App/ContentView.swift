@@ -23,7 +23,7 @@ struct ContentView: View {
                             Button(action: {
                                 watchToIOSConnector.sendMessage(["command": "startRecording"])
                                 watchToIOSConnector.isPlaying = true
-//                                watchToIOSConnector.startWorkout()
+                                watchToIOSConnector.startWorkout()
                                 isNavigatingToTrainResult = true
                             }) {
                                 Image(systemName: "play.fill")

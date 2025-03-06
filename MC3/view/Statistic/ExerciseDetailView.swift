@@ -177,7 +177,7 @@ struct ExerciseDetailView: View {
                     Button {
                         Task {
                                await viewModel.saveToFirestore()
-                               modelContext.insert(viewModel.exercise) // Simpan ke SwiftData setelah ke Firestore
+                               modelContext.insert(viewModel.exercise)
                                saved = true
                            }
                     } label: {

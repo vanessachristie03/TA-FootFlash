@@ -53,7 +53,7 @@ struct TrainResultView: View {
                     )
                     .onTapGesture {
                         watchToIOSConnector.sendMessage(["command": "stopRecording"])
-//                        watchToIOSConnector.stopWorkout()
+                        watchToIOSConnector.stopWorkout()
                         isNavigatingBack = false
                     }
             }

@@ -66,9 +66,12 @@ struct ExerciseDetailView: View {
                         }
                         .padding(.trailing, 32)
                         VStack(alignment: .leading) {
-                                    Text("Calories burned: \(watchConnector.burnedCalories, specifier: "%.2f")")
-                                        .font(.headline)
-                                        .padding()
+                            Text("\(viewModel.exercise.caloriesBurned, specifier: "%.2f")")
+                                        .bold()
+                                        .font(.system(size: 22))
+                            Text("Calories")
+                                .font(.system(size: 13))
+                                .foregroundColor(.gray)
                                 }
                         
                         VStack(alignment: .leading) {
@@ -173,7 +176,7 @@ struct ExerciseDetailView: View {
         .background(Color("Secondary"))
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                if !saved { // Hanya tampil kalau belum disimpan
+                if !saved {
                     Button {
                         Task {
                                await viewModel.saveToFirestore()
@@ -187,7 +190,7 @@ struct ExerciseDetailView: View {
                         StatisticsList()
                     }
                     } else {
-                        Text("Saved") // Ganti tombol dengan teks setelah disimpan
+                        Text("Saved")
                             .foregroundColor(.gray)
                     }
                 }

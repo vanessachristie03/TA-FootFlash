@@ -31,7 +31,8 @@ struct StatisticsList: View {
         if viewModel.exercises.count > 0 {
             ScrollView(.vertical, showsIndicators: true) {
                 VStack(spacing: 20) {
-                    ForEach(Array(viewModel.exercises.enumerated()), id: \.element.id) { index, exercise in
+                    ForEach(Array(viewModel.exercises.sorted(by: { $0.date > $1.date }).enumerated()), id: \.element.id) { index, exercise in
+
                         NavigationLink(destination: ExerciseDetailView(exercise: exercise))  {
                             VStack(alignment: .leading) {
                                 Text(formatDate(date: exercise.date))
@@ -61,6 +62,16 @@ struct StatisticsList: View {
                                     .padding(.vertical, 5)
                                     
                                     Spacer()
+                                    VStack {
+                                           Text("\(String(format: "%.2f", viewModel.caloriesData[exercise.id] ?? 0.0))")
+                                               .font(.custom("SF Pro Text", size: 22))
+                                           Text("Calories")
+                                               .font(.custom("SF Pro Text", size: 12))
+                                               .multilineTextAlignment(.leading)
+                                       }
+                                       .padding(.vertical, 5)
+                                    Spacer()
+                                    
                                 }
                                 .frame(maxWidth: .infinity)
                             }

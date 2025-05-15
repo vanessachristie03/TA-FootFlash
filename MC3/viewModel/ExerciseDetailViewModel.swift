@@ -13,6 +13,7 @@ import FirebaseFirestore
 class ExerciseDetailViewModel: ObservableObject {
     @Published var exercise: Exercise = Exercise()
     @Published var durations: [Int] = []
+    @ObservedObject var watchConnector = WatchConnector.shared
     
     init(exercise: Exercise) {
         self.exercise = exercise
@@ -31,7 +32,7 @@ class ExerciseDetailViewModel: ObservableObject {
             "accuracy": exercise.accuracy,
             "mistakes": exercise.mistakes,
             "fullRecord": exercise.fullRecord,
-            "caloriesBurned": exercise.caloriesBurned
+            "caloriesBurned": watchConnector.burnedCalories
         ]
         
         db.collection("exercise").document(exercise.id.uuidString).setData(exerciseData) { error in
@@ -42,15 +43,14 @@ class ExerciseDetailViewModel: ObservableObject {
             }
         }
     }
-    
 
     
     func generateThumbnail(from url: URL) -> UIImage? {
         let asset = AVAsset(url: url)
         let assetImageGenerator = AVAssetImageGenerator(asset: asset)
-        assetImageGenerator.appliesPreferredTrackTransform = true // Correctly orient the thumbnail
+        assetImageGenerator.appliesPreferredTrackTransform = true
         
-        let time = CMTime(seconds: 1.0, preferredTimescale: 600) // Capture the thumbnail at 1 second
+        let time = CMTime(seconds: 1.0, preferredTimescale: 600) 
         
         do {
             let cgImage = try assetImageGenerator.copyCGImage(at: time, actualTime: nil)

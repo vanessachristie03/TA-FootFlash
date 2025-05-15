@@ -13,7 +13,8 @@ class PredictionViewModel: ObservableObject {
         }
     }
     @Published var calibrationMessage: String = ""
-    let caloriesBurned = WatchConnector.shared.burnedCalories
+  
+    private let watchConnector = WatchConnector.shared
 
     
     var videoCapture: VideoCapture!
@@ -33,7 +34,7 @@ class PredictionViewModel: ObservableObject {
         videoCapture.delegate = self
         
         // Ensure WatchSessionManager is initialized
-        _ = WatchSessionManager.shared
+        _ = WatchConnector.shared
     }
     
     func updateUILabels(with prediction: ActionPrediction) {
@@ -127,7 +128,7 @@ class PredictionViewModel: ObservableObject {
         // Pastikan URL video valid
         guard let fullVideoURL = fullVideoWriter?.outputURL else {
             print("❌ Full video URL is nil")
-            return Exercise(id: UUID(), date: Date.now, duration: 0, accuracy: 0, mistakes: [], fullRecord: "", caloriesBurned: caloriesBurned)
+            return Exercise(id: UUID(), date: Date.now, duration: 0, accuracy: 0, mistakes: [], fullRecord: "",  caloriesBurned: 0)
         }
 
         let fullVideo = AVAsset(url: fullVideoURL)
@@ -139,6 +140,10 @@ class PredictionViewModel: ObservableObject {
         } catch {
             print("❌ Error getting video duration: \(error.localizedDescription)")
         }
+        
+        // Gunakan burnedCalories dari WatchConnector
+        let caloriesBurned = watchConnector.burnedCalories
+        
 
         // Hitung akurasi
         let accuracy = Double(actionFrameCounts["benar"] ?? 0) / (Double(actionFrameCounts["salah"] ?? 0) + Double(actionFrameCounts["benar"] ?? 1))
@@ -234,7 +239,7 @@ class PredictionViewModel: ObservableObject {
     
     private func sendCalibrationStatusToWatch() {
         let message = ["calibrationStatus": isCentered]
-        WatchSessionManager.shared.sendMessage(message)
+        WatchConnector.shared.sendMessage(message)
     }
 }
 

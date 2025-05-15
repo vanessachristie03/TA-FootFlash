@@ -1,12 +1,15 @@
+//
+//  Leaderboard.swift
+//  MC3
+//
+//  Created by Vanessa on 07/03/25.
+//
+
+import Foundation
 struct Leaderboard: Identifiable {
-    let id = UUID()
-    let userId: UUID
-    let fullName: String
-    let totalAccuracy: Double
-    
-    init(userId: UUID, fullName: String, totalAccuracy: Double) {
-        self.userId = userId
-        self.fullName = fullName
-        self.totalAccuracy = totalAccuracy
-    }
+    var id: String
+    var userId: String
+    var fullName: String
+    var totalAccuracy: Double
 }
+

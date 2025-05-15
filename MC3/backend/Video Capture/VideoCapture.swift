@@ -182,9 +182,10 @@ extension VideoCapture {
         // (Re)start the capture session after this method returns.
         defer {
             if isEnabled {
-                enableCaptureSession()
+               
                 captureSession.beginConfiguration()
                 captureSession.commitConfiguration()
+                enableCaptureSession()
             }
             
         }

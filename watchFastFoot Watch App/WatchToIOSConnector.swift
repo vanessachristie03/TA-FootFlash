@@ -32,7 +32,6 @@ class WatchToIOSConnector: NSObject, ObservableObject, WCSessionDelegate, HKWork
             session.delegate = self
             session.activate()
         }
-        
     }
 
     func requestHealthKitAuthorization() {
@@ -78,8 +77,7 @@ class WatchToIOSConnector: NSObject, ObservableObject, WCSessionDelegate, HKWork
             workoutSession?.delegate = self
             workoutBuilder?.delegate = self
             workoutBuilder?.dataSource = HKLiveWorkoutDataSource(healthStore: healthStore, workoutConfiguration: config)
-
-            // Ambil jumlah kalori awal sebelum workout dimulai
+            
             fetchCurrentCalories { initialCalories in
                 self.initialCalories = initialCalories
                 print("🔥 Initial Calories: \(initialCalories) kcal")
@@ -89,7 +87,7 @@ class WatchToIOSConnector: NSObject, ObservableObject, WCSessionDelegate, HKWork
             workoutBuilder?.beginCollection(withStart: Date()) { success, error in
                 if success {
                     DispatchQueue.main.async {
-                        self.burnedCalories = 0.0 // Reset kalori saat mulai workout
+                        self.burnedCalories = 0.0
                         self.isPlaying = true
                     }
                     print("🏃‍♂️ Workout session started")
@@ -134,6 +132,7 @@ class WatchToIOSConnector: NSObject, ObservableObject, WCSessionDelegate, HKWork
             }
         }
     }
+    
     func workoutBuilder(_ workoutBuilder: HKLiveWorkoutBuilder, didCollectDataOf collectedTypes: Set<HKSampleType>) {
         if collectedTypes.contains(HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned)!) {
             if let burnedCalories = workoutBuilder.statistics(for: HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned)!)?.sumQuantity()?.doubleValue(for: HKUnit.kilocalorie()) {
@@ -173,31 +172,23 @@ class WatchToIOSConnector: NSObject, ObservableObject, WCSessionDelegate, HKWork
     }
 
     func sendCaloriesToiPhone(burnedCalories: Double) {
-        print("WCSession activation state: \(WCSession.default.activationState.rawValue)")
-        print("WCSession isReachable: \(WCSession.default.isReachable)")
-        
-        
-        if WCSession.default.activationState == .activated && WCSession.default.isReachable {
-            print("Sending calories: \(burnedCalories) to iPhone") // Debug log
-            let message = ["burnedCalories": burnedCalories]
-            print("Isi dari Message itu : \(message)")
-            
-            
-            WCSession.default.sendMessage(message, replyHandler: { response in
-                print ("Message sent successfully. Response: \(response)")
-            }, errorHandler: { error in
-                print("Error sending: \(error.localizedDescription  )")} )
-            
-//            WCSession.default.sendMessage(message, replyHandler: nil) { response in
-//                print ("Message sent successfully. Response: \(response)")
-//            },
-//                error in
-//                print("Error sending calories to iPhone: \(error.localizedDescription)")
-//            }
+        if WCSession.default.activationState == .activated {
+            if WCSession.default.isReachable {
+                let message = ["burnedCalories": burnedCalories]
+                print("Sending calories: \(burnedCalories) to iPhone")
+
+                WCSession.default.sendMessage(message, replyHandler: nil, errorHandler: { error in
+                    print(error)
+                    print("Error sending: \(error.localizedDescription)")
+                })
+            } else {
+                print("iPhone is not reachable")
+            }
         } else {
-            print("iPhone is not reachable")
+            print("WCSession not activated")
         }
     }
+
 
     func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {}
 

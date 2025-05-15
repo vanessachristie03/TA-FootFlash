@@ -54,8 +54,7 @@
 		1A68593F2C46B86400F62D6D /* WatchToIOSConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A68593E2C46B86400F62D6D /* WatchToIOSConnector.swift */; };
 		1A6FF2422C4F7EBF0016BCC0 /* WatchConnector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6859392C46B3C500F62D6D /* WatchConnector.swift */; };
 		1A6FF2442C4FCF640016BCC0 /* LogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A6FF2432C4FCF640016BCC0 /* LogoView.swift */; };
-		1A81B2712D6EC22600477F72 /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A81B2702D6EC22600477F72 /* HealthKitManager.swift */; };
-		1A81B2732D6EC71A00477F72 /* WorkoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A81B2722D6EC71A00477F72 /* WorkoutView.swift */; };
+		1A81B3532D7AE33600477F72 /* Leaderboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A81B3522D7AE33600477F72 /* Leaderboard.swift */; };
 		1AAA03552D4683E8003ED423 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1AAA03542D4683E8003ED423 /* GoogleService-Info.plist */; };
 		1AAA03582D5B5368003ED423 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 1AAA03572D5B5368003ED423 /* FirebaseAnalytics */; };
 		1AAA035A2D5B5368003ED423 /* FirebaseAnalyticsOnDeviceConversion in Frameworks */ = {isa = PBXBuildFile; productRef = 1AAA03592D5B5368003ED423 /* FirebaseAnalyticsOnDeviceConversion */; };
@@ -203,8 +202,7 @@
 		1A68593C2C46B43800F62D6D /* WatchConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WatchConnectivity.framework; path = Platforms/WatchOS.platform/Developer/SDKs/WatchOS10.2.sdk/System/Library/Frameworks/WatchConnectivity.framework; sourceTree = DEVELOPER_DIR; };
 		1A68593E2C46B86400F62D6D /* WatchToIOSConnector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchToIOSConnector.swift; sourceTree = "<group>"; };
 		1A6FF2432C4FCF640016BCC0 /* LogoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogoView.swift; sourceTree = "<group>"; };
-		1A81B2702D6EC22600477F72 /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
-		1A81B2722D6EC71A00477F72 /* WorkoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutView.swift; sourceTree = "<group>"; };
+		1A81B3522D7AE33600477F72 /* Leaderboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Leaderboard.swift; sourceTree = "<group>"; };
 		1AAA03542D4683E8003ED423 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5321914F2C48208500377F67 /* FootworkClassifier 1_105f_Iteration 90.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = "FootworkClassifier 1_105f_Iteration 90.mlmodel"; sourceTree = "<group>"; };
 		532191512C4820D700377F67 /* TrainClassifierView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainClassifierView.swift; sourceTree = "<group>"; };
@@ -453,6 +451,7 @@
 			children = (
 				1A047BF12C438048001AA3BE /* statistic.swift */,
 				7E4B5B6A2C498B7400481E3E /* User.swift */,
+				1A81B3522D7AE33600477F72 /* Leaderboard.swift */,
 				04D194292C4F8EDE001C2A18 /* Exercise.swift */,
 				5339EED02C4F4DCC004ACDD9 /* Video.swift */,
 			);
@@ -462,12 +461,10 @@
 		1A68590C2C46645300F62D6D /* watchFastFoot Watch App */ = {
 			isa = PBXGroup;
 			children = (
-				1A81B2702D6EC22600477F72 /* HealthKitManager.swift */,
 				5339EED32C4FA20A004ACDD9 /* watchFastFoot-Watch-App-Info.plist */,
 				5339EED22C4FA201004ACDD9 /* watchFastFoot Watch App.entitlements */,
 				1A68593E2C46B86400F62D6D /* WatchToIOSConnector.swift */,
 				5339EEE12C539443004ACDD9 /* WatchViewModel.swift */,
-				1A81B2722D6EC71A00477F72 /* WorkoutView.swift */,
 				1A68590D2C46645300F62D6D /* watchFastFootApp.swift */,
 				1A68590F2C46645300F62D6D /* ContentView.swift */,
 				5339EEE32C53946E004ACDD9 /* TrainResultView.swift */,
@@ -800,6 +797,7 @@
 				532191522C4820D700377F67 /* TrainClassifierView.swift in Sources */,
 				1A047BF72C438212001AA3BE /* cardViewModel.swift in Sources */,
 				04F58DD22C5209330086AF26 /* Pose+Empty.swift in Sources */,
+				1A81B3532D7AE33600477F72 /* Leaderboard.swift in Sources */,
 				1A5DDD042C454B1600D09224 /* TutorialViewModel.swift in Sources */,
 				1A047BC32C3FFF7D001AA3BE /* MC3App.swift in Sources */,
 				532191502C48208500377F67 /* FootworkClassifier 1_105f_Iteration 90.mlmodel in Sources */,
@@ -836,11 +834,9 @@
 			files = (
 				1A68593F2C46B86400F62D6D /* WatchToIOSConnector.swift in Sources */,
 				5339EEE42C53946E004ACDD9 /* TrainResultView.swift in Sources */,
-				1A81B2732D6EC71A00477F72 /* WorkoutView.swift in Sources */,
 				5339EEE22C539443004ACDD9 /* WatchViewModel.swift in Sources */,
 				1A6859102C46645300F62D6D /* ContentView.swift in Sources */,
 				53919FA62CA9161400CB61CB /* testview.swift in Sources */,
-				1A81B2712D6EC22600477F72 /* HealthKitManager.swift in Sources */,
 				1A68590E2C46645300F62D6D /* watchFastFootApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -10,7 +10,7 @@ class User {
     var lastName: String
 
     init(userId: UUID = UUID(), firstName: String, lastName: String) {
-        self.userId = UUID() // ID otomatis di-generate
+        self.userId = userId
         self.firstName = firstName
         self.lastName = lastName
     }

@@ -14,8 +14,13 @@ struct ProfileView: View {
     @State private var firstName: String = ""
     @State private var lastName: String = ""
     @State private var leaderboardUsers: [(firstName: String, lastName: String)] = []
-    @State private var users: [User] = []
+    @State private var leaderboardEntries: [Leaderboard] = []
 
+    @State private var users: [User] = []
+    @State private var currentUserID: String = ""
+    
+    
+    @StateObject private var statisticsViewModel = StatisticsViewModel()
     
     var body: some View {
         NavigationStack {
@@ -70,26 +75,47 @@ struct ProfileView: View {
                         .frame(height: 1)
                         .foregroundColor(.gray)
                     
-                    VStack {
-                                           ScrollView {
-                                               VStack(alignment: .leading) {
-                                                   Text("Leaderboard")
-                                                       .bold()
-                                                       .font(.system(size: 17))
-                                                       .foregroundColor(Color("Text"))
-                                                       .padding(.bottom, 5)
-                                                   
-                                                   ForEach(users, id: \.id) { user in
-                                                             HStack {
-                                                                 Text("\(user.firstName) \(user.lastName)")
-                                                                     .font(.system(size: 17))
-                                                                     .foregroundColor(Color("Text"))
-                                                                 Spacer()
-                                                             }
-                                                             .padding(.horizontal)
-                                                         }
-                                               }
-                                           }
+                    VStack(alignment: .leading) {
+                        Text("Leaderboard")
+                            .bold()
+                            .font(.system(size: 27))
+                            .foregroundColor(Color("Text"))
+                            .padding(.bottom, 5)
+                            .padding(.top, 5)
+                            .padding(.leading, 10)
+                        
+                        
+                        ScrollView {
+                            VStack(spacing: 8) {
+                                ForEach(Array(leaderboardEntries.enumerated()), id: \.element.id) { index, entry in
+                                    HStack {
+                                        Text("\(index + 1).")
+                                            .font(.system(size: 17))
+                                            .bold()
+                                            .foregroundColor(.black)
+                                            .frame(width: 30, alignment: .leading)
+                                        
+                                      
+                                            Text(entry.fullName)
+                                                .font(.system(size: 17))
+                                                .foregroundColor(.black)
+                                            
+                                        
+                                        Spacer()
+                                        
+                                        Text("\(entry.totalAccuracy, specifier: "%.2f")")
+                                            .font(.system(size: 17))
+                                            .foregroundColor(.black)
+                                    }
+                                    .padding()
+                                    .background(entry.userId == currentUserID ? Color("Accent") : Color.white)
+                                    .cornerRadius(10)
+                                    .shadow(color: .gray.opacity(0.2), radius: 4, x: 0, y: 2)
+                                    .padding(.horizontal)
+                                }
+                            }
+                        }
+
                                        }
                                        .font(.title)
                                        .foregroundColor(.blue)
@@ -98,8 +124,11 @@ struct ProfileView: View {
                 Spacer()
             }
             .onAppear {
+                currentUserID = getOrCreateUserID()
                 initializeUser()
                 fetchUsersFromFirestore()
+                getLeaderboard()
+                statisticsViewModel.fetchStatistics()
             }
             .onChange(of: users) { _ in
                 initializeUser()
@@ -132,6 +161,7 @@ struct ProfileView: View {
             }
         }
     }
+    
 
     private func saveUserIDToDefaults(_ userID: String) {
         UserDefaults.standard.set(userID, forKey: "userID")
@@ -188,6 +218,7 @@ struct ProfileView: View {
         let db = Firestore.firestore()
         
         let newUser = [
+            "userId": userID,
             "firstName": firstName,
             "lastName": lastName
         ]
@@ -211,7 +242,27 @@ struct ProfileView: View {
             return newUserID
         }
     }
-
+    private func getLeaderboard() {
+        let db = Firestore.firestore()
+        db.collection("Leaderboard")
+            .order(by: "totalAccuracy", descending: true)
+            .getDocuments { snapshot, error in
+                if let error = error {
+                    print("🔥 Error fetching leaderboard: \(error.localizedDescription)")
+                    return
+                }
+                
+                self.leaderboardEntries = snapshot?.documents.compactMap { doc in
+                    let data = doc.data()
+                    return Leaderboard(
+                        id: doc.documentID,
+                        userId: data["userId"] as? String ?? "",
+                        fullName: data["fullName"] as? String ?? "Unknown",
+                        totalAccuracy: data["totalAccuracy"] as? Double ?? 0.0
+                    )
+                } ?? []
+            }
+    }
 
 }
 

@@ -2,45 +2,45 @@ import SwiftUI
 import WatchConnectivity
 
 
-class WatchSessionManager: NSObject, WCSessionDelegate, ObservableObject {
-    static let shared = WatchSessionManager()
-    
-    private override init() {
-        super.init()
-        if WCSession.isSupported() {
-            WCSession.default.delegate = self
-            WCSession.default.activate()
-        }
-    }
-    
-    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {}
-    
-    func sessionDidBecomeInactive(_ session: WCSession) {}
-    
-    func sessionDidDeactivate(_ session: WCSession) {
-        session.activate()
-    }
-    
-    func sendMessage(_ message: [String: Any]) {
-        if WCSession.default.isReachable {
-            WCSession.default.sendMessage(message, replyHandler: nil) { error in
-                print("Error sending message: \(error.localizedDescription)")
-            }
-        }
-    }
-    
-    func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
-        if let command = message["command"] as? String {
-            DispatchQueue.main.async {
-                if command == "startRecording" {
-                    NotificationCenter.default.post(name: .startRecording, object: nil)
-                } else if command == "stopRecording" {
-                    NotificationCenter.default.post(name: .stopRecording, object: nil)
-                }
-            }
-        }
-    }
-}
+//class WatchSessionManager: NSObject, WCSessionDelegate, ObservableObject {
+//    static let shared = WatchSessionManager()
+//    
+//    private override init() {
+//        super.init()
+//        if WCSession.isSupported() {
+//            WCSession.default.delegate = self
+//            WCSession.default.activate()
+//        }
+//    }
+//    
+//    func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {}
+//    
+//    func sessionDidBecomeInactive(_ session: WCSession) {}
+//    
+//    func sessionDidDeactivate(_ session: WCSession) {
+//        session.activate()
+//    }
+//    
+//    func sendMessage(_ message: [String: Any]) {
+//        if WCSession.default.isReachable {
+//            WCSession.default.sendMessage(message, replyHandler: nil) { error in
+//                print("Error sending message: \(error.localizedDescription)")
+//            }
+//        }
+//    }
+//    
+//    func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
+//        if let command = message["command"] as? String {
+//            DispatchQueue.main.async {
+//                if command == "startRecording" {
+//                    NotificationCenter.default.post(name: .startRecording, object: nil)
+//                } else if command == "stopRecording" {
+//                    NotificationCenter.default.post(name: .stopRecording, object: nil)
+//                }
+//            }
+//        }
+//    }
+//}
 
 extension Notification.Name {
     static let startRecording = Notification.Name("startRecording")
@@ -57,7 +57,7 @@ struct TrainClassifierView: View {
     @State private var navigateToSavePredictedResult = false
     @State var recordedExercise: Exercise = Exercise()
     
-    var watchConnector = WatchSessionManager.shared
+    var watchConnector = WatchConnector.shared
     @State private var isPortrait = true // State to track orientation
     @Environment(\.modelContext) var modelContext
 

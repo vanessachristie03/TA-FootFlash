@@ -28,9 +28,16 @@ class WatchConnector: NSObject, ObservableObject, WCSessionDelegate {
     }
 
     func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
-        
         DispatchQueue.main.async {
-            print("yey masuk")
+            if let command = message["command"] as? String {
+                DispatchQueue.main.async {
+                    if command == "startRecording" {
+                        NotificationCenter.default.post(name: .startRecording, object: nil)
+                    } else if command == "stopRecording" {
+                        NotificationCenter.default.post(name: .stopRecording, object: nil)
+                    }
+                }
+            }
             if let calories = message["burnedCalories"] as? Double {
                 
                 self.burnedCalories = calories
@@ -49,6 +56,13 @@ class WatchConnector: NSObject, ObservableObject, WCSessionDelegate {
         print("📡 WCSession activation complete: \(activationState.rawValue)")
         if let error = error {
             print("❌ Activation error: \(error.localizedDescription)")
+        }
+    }
+    func sendMessage(_ message: [String: Any]) {
+        if WCSession.default.isReachable {
+            WCSession.default.sendMessage(message, replyHandler: nil) { error in
+                print("Error sending message: \(error.localizedDescription)")
+            }
         }
     }
     
